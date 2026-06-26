@@ -128,7 +128,7 @@ export default function InterestsStep() {
                   initial={{ scale: 0 }} animate={{ scale: 1 }}
                   style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
-                  <Check size={13} color="#04140a" strokeWidth={3} />
+                  <Check size={13} color="var(--accent-fg)" strokeWidth={3} />
                 </motion.span>
               )}
             </motion.button>

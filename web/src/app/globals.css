@@ -8,12 +8,16 @@
   --bg-elev: #0d100f;
   --surface: #121615;
   --surface-2: #181d1b;
+  --nav-bg: rgba(8, 11, 10, 0.82);
+  --skeleton: rgba(255, 255, 255, 0.06);
+  --skeleton-sheen: rgba(255, 255, 255, 0.11);
   --hairline: rgba(255, 255, 255, 0.07);
   --hairline-strong: rgba(255, 255, 255, 0.12);
 
   /* Brand */
   --accent: #2be873;
   --accent-press: #22c462;
+  --accent-fg: #04140a;
   --accent-soft: rgba(43, 232, 115, 0.12);
   --accent-glow: rgba(43, 232, 115, 0.35);
 
@@ -47,11 +51,24 @@
 
 /* ---------- Motion ---------- */
 @keyframes spin { to { transform: rotate(360deg); } }
+@keyframes shimmer { 100% { transform: translateX(100%); } }
 
-@keyframes auroraDrift {
-  0%   { transform: translate(-10%, -8%) scale(1); opacity: 0.55; }
-  50%  { transform: translate(8%, 6%) scale(1.15); opacity: 0.8; }
-  100% { transform: translate(-10%, -8%) scale(1); opacity: 0.55; }
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--skeleton);
+  border-radius: 8px;
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, var(--skeleton-sheen), transparent);
+  animation: shimmer 1.3s infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after { animation: none; }
 }
 
 @keyframes pulseGlow {
@@ -69,20 +86,21 @@
     position: relative;
   }
 
-  /* Ambient aurora background blob */
+  /* Ambient backdrop — an anchored accent wash at the top edge plus a faint
+     dot-grid texture, both faded out toward the middle of the screen. No
+     floating orbs / perfect circles. */
   .aurora {
     position: fixed;
-    top: -25%;
-    left: 50%;
-    width: 520px;
-    height: 520px;
-    margin-left: -260px;
-    border-radius: 50%;
-    background: radial-gradient(circle at center, var(--accent-glow), transparent 65%);
-    filter: blur(40px);
+    inset: 0;
     pointer-events: none;
     z-index: 0;
-    animation: auroraDrift 14s ease-in-out infinite;
+    background-image:
+      radial-gradient(135% 55% at 50% -8%, var(--accent-glow), transparent 58%),
+      radial-gradient(var(--hairline) 1px, transparent 1.4px);
+    background-size: 100% 100%, 22px 22px;
+    background-position: top center, top center;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 32%, transparent 72%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 32%, transparent 72%);
   }
 
   /* Cards */
@@ -125,7 +143,7 @@
 
   .btn-accent {
     background: var(--accent);
-    color: #04140a;
+    color: var(--accent-fg);
     box-shadow: 0 8px 30px -8px var(--accent-glow);
   }
   .btn-accent:disabled { opacity: 0.4; box-shadow: none; cursor: not-allowed; }
@@ -317,8 +335,9 @@
     align-items: center;
     height: 68px;
     padding-bottom: 8px;
-    background: rgba(8, 11, 10, 0.85);
+    background: var(--nav-bg);
     backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
     border-top: 1px solid var(--hairline);
     z-index: 50;
   }

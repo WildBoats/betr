@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Wallet as WalletIcon, History, ChevronRight, LogOut } from 'lucide-react';
+import { Wallet as WalletIcon, History, ChevronRight, LogOut, Settings as SettingsIcon } from 'lucide-react';
 import { Profile, ProfileStats, getMyProfile, getProfileStats } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
 
@@ -59,8 +59,12 @@ export default function ProfilePage() {
               <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-2)', display: 'inline-flex', alignItems: 'center', gap: 10 }}><WalletIcon size={17} color="var(--text-3)" /> Wallet</span>
               <ChevronRight size={17} color="var(--text-3)" />
             </Link>
-            <Link href="/home/profile/history" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0' }}>
+            <Link href="/home/profile/history" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: '1px solid var(--hairline)' }}>
               <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-2)', display: 'inline-flex', alignItems: 'center', gap: 10 }}><History size={17} color="var(--text-3)" /> Challenge history</span>
+              <ChevronRight size={17} color="var(--text-3)" />
+            </Link>
+            <Link href="/home/profile/settings" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0' }}>
+              <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-2)', display: 'inline-flex', alignItems: 'center', gap: 10 }}><SettingsIcon size={17} color="var(--text-3)" /> Appearance &amp; settings</span>
               <ChevronRight size={17} color="var(--text-3)" />
             </Link>
           </div>

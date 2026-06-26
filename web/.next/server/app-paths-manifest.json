@@ -1,1 +1,7 @@
-{}
+{
+  "/page": "app/page.js",
+  "/(home)/home/challenges/create/page": "app/(home)/home/challenges/create/page.js",
+  "/(home)/home/wallet/page": "app/(home)/home/wallet/page.js",
+  "/(home)/home/profile/settings/page": "app/(home)/home/profile/settings/page.js",
+  "/(home)/home/challenges/page": "app/(home)/home/challenges/page.js"
+}

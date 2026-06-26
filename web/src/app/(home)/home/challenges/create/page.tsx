@@ -123,7 +123,7 @@ export default function CreateChallengePage() {
             onClick={() => setCreatorParticipates(v => !v)}
             style={{ width: 46, height: 26, borderRadius: 13, background: creatorParticipates ? 'var(--accent)' : 'var(--surface-2)', transition: 'background .15s', position: 'relative', flexShrink: 0 }}
           >
-            <div style={{ width: 20, height: 20, borderRadius: 10, background: creatorParticipates ? '#04140a' : 'var(--text-3)', position: 'absolute', top: 3, left: creatorParticipates ? 23 : 3, transition: 'left .15s' }} />
+            <div style={{ width: 20, height: 20, borderRadius: 10, background: creatorParticipates ? 'var(--accent-fg)' : 'var(--text-3)', position: 'absolute', top: 3, left: creatorParticipates ? 23 : 3, transition: 'left .15s' }} />
           </button>
         </div>
 

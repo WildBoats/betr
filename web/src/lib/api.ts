@@ -70,6 +70,17 @@ export function daysLeft(endsAt: string | null): number {
   return Math.max(0, Math.ceil((new Date(endsAt).getTime() - Date.now()) / 86400000));
 }
 
+/** Fraction (0–1) of a challenge's run that has elapsed. 0 before it starts. */
+export function challengeProgress(startsAt: string, endsAt: string | null): number {
+  if (!endsAt) return 0;
+  const start = new Date(startsAt).getTime();
+  const end = new Date(endsAt).getTime();
+  const now = Date.now();
+  if (now <= start || end <= start) return 0;
+  if (now >= end) return 1;
+  return (now - start) / (end - start);
+}
+
 export function startsIn(startsAt: string): string {
   const diff = new Date(startsAt).getTime() - Date.now();
   if (diff <= 0) return 'Live';

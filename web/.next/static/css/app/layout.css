@@ -686,20 +686,21 @@ video {
     min-height: 100dvh;
     position: relative;
   }
-/* Ambient aurora background blob */
+/* Ambient backdrop — an anchored accent wash at the top edge plus a faint
+     dot-grid texture, both faded out toward the middle of the screen. No
+     floating orbs / perfect circles. */
 .aurora {
     position: fixed;
-    top: -25%;
-    left: 50%;
-    width: 520px;
-    height: 520px;
-    margin-left: -260px;
-    border-radius: 50%;
-    background: radial-gradient(circle at center, var(--accent-glow), transparent 65%);
-    filter: blur(40px);
+    inset: 0;
     pointer-events: none;
     z-index: 0;
-    animation: auroraDrift 14s ease-in-out infinite;
+    background-image:
+      radial-gradient(135% 55% at 50% -8%, var(--accent-glow), transparent 58%),
+      radial-gradient(var(--hairline) 1px, transparent 1.4px);
+    background-size: 100% 100%, 22px 22px;
+    background-position: top center, top center;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 32%, transparent 72%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 32%, transparent 72%);
   }
 /* Cards */
 .surface {
@@ -738,7 +739,7 @@ video {
 .btn:active { transform: scale(0.975); }
 .btn-accent {
     background: var(--accent);
-    color: #04140a;
+    color: var(--accent-fg);
     box-shadow: 0 8px 30px -8px var(--accent-glow);
   }
 .btn-accent:disabled { opacity: 0.4; box-shadow: none; cursor: not-allowed; }
@@ -801,6 +802,138 @@ video {
     border-radius: 999px;
     transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
   }
+/* ---------- App-screen building blocks ---------- */
+/* Card surface */
+.card {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    padding: 16px;
+    transition: border-color 0.16s ease, transform 0.12s ease;
+  }
+a.card:active { transform: scale(0.99); }
+a.card:hover { border-color: var(--hairline-strong); }
+/* Section label */
+.section-tag {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-3);
+    margin-bottom: 10px;
+  }
+/* Stat cell */
+.stat-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    background: var(--bg-elev);
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    padding: 10px 4px;
+  }
+.stat-box .stat-val { font-size: 15px; font-weight: 800; color: var(--accent); }
+.stat-box .stat-lbl { font-size: 9px; letter-spacing: 0.4px; color: var(--text-3); text-transform: uppercase; }
+/* Status pill */
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+  }
+.status-live { background: var(--accent-soft); color: var(--accent); }
+.status-voting { background: rgba(245, 177, 76, 0.12); color: var(--amber); }
+.status-soon { background: var(--surface-2); color: var(--text-3); }
+.status-pill .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+/* Avatars */
+.avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    flex-shrink: 0;
+    font-weight: 800;
+    background: var(--surface-2);
+    border: 1px solid var(--hairline);
+    color: var(--text-2);
+  }
+.avatar-accent {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+  }
+/* Meta type chip (public/private) */
+.meta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-3);
+  }
+/* Page header row */
+.page-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+.page-title { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; color: var(--text); }
+/* Icon / back button */
+.icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    color: var(--text-2);
+    flex-shrink: 0;
+    transition: background 0.16s ease;
+  }
+.icon-btn:active { background: var(--surface-2); }
+/* Bottom nav */
+.nav-bar {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 440px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 68px;
+    padding-bottom: 8px;
+    background: var(--nav-bg);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-top: 1px solid var(--hairline);
+    z-index: 50;
+  }
+.nav-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    flex: 1;
+    color: var(--text-3);
+    transition: color 0.16s ease;
+  }
+.nav-item-active { color: var(--accent); }
+.nav-item .nav-lbl { font-size: 10px; font-weight: 600; }
 .fixed {
   position: fixed;
 }
@@ -815,6 +948,9 @@ video {
 }
 .inline-block {
   display: inline-block;
+}
+.inline {
+  display: inline;
 }
 .flex {
   display: flex;
@@ -849,6 +985,11 @@ video {
 .underline {
   text-decoration-line: underline;
 }
+.ring {
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+}
 .blur {
   --tw-blur: blur(8px);
   filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
@@ -872,12 +1013,16 @@ video {
   --bg-elev: #0d100f;
   --surface: #121615;
   --surface-2: #181d1b;
+  --nav-bg: rgba(8, 11, 10, 0.82);
+  --skeleton: rgba(255, 255, 255, 0.06);
+  --skeleton-sheen: rgba(255, 255, 255, 0.11);
   --hairline: rgba(255, 255, 255, 0.07);
   --hairline-strong: rgba(255, 255, 255, 0.12);
 
   /* Brand */
   --accent: #2be873;
   --accent-press: #22c462;
+  --accent-fg: #04140a;
   --accent-soft: rgba(43, 232, 115, 0.12);
   --accent-glow: rgba(43, 232, 115, 0.35);
 
@@ -896,14 +1041,28 @@ video {
 
 /* ---------- Motion ---------- */
 @keyframes spin { to { transform: rotate(360deg); } }
+@keyframes shimmer { 100% { transform: translateX(100%); } }
 
-@keyframes auroraDrift {
-  0%   { transform: translate(-10%, -8%) scale(1); opacity: 0.55; }
-  50%  { transform: translate(8%, 6%) scale(1.15); opacity: 0.8; }
-  100% { transform: translate(-10%, -8%) scale(1); opacity: 0.55; }
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--skeleton);
+  border-radius: 8px;
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, var(--skeleton-sheen), transparent);
+  animation: shimmer 1.3s infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after { animation: none; }
 }
 
 @keyframes pulseGlow {
   0%, 100% { opacity: 0.6; }
   50%      { opacity: 1; }
 }
+
