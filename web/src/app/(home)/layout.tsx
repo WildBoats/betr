@@ -19,15 +19,16 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
 
   if (!ready) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100dvh', backgroundColor: '#0C0C0C' }}>
-        <span style={{ color: '#39FF7A', fontSize: 13 }}>Loading…</span>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100dvh', background: 'var(--bg)' }}>
+        <span style={{ display: 'inline-block', width: 22, height: 22, border: '2px solid var(--accent)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
       </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: 480, margin: '0 auto', minHeight: '100dvh', backgroundColor: '#0C0C0C', position: 'relative' }}>
-      <main style={{ paddingBottom: 80 }}>{children}</main>
+    <div className="app-frame">
+      <div className="aurora" />
+      <main style={{ position: 'relative', zIndex: 1, paddingBottom: 88, minHeight: '100dvh' }}>{children}</main>
       <Nav />
     </div>
   );

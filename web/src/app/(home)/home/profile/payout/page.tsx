@@ -2,7 +2,13 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ArrowLeft, ArrowRight, Trophy } from 'lucide-react';
+import { Btn } from '@/components/ui';
 import { Challenge, getChallengeById, processPayout } from '@/lib/api';
+
+function Spinner() {
+  return <span style={{ display: 'inline-block', width: 22, height: 22, border: '2px solid var(--accent)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />;
+}
 
 function PayoutContent() {
   const searchParams = useSearchParams();
@@ -13,19 +19,13 @@ function PayoutContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!challengeId) {
-      router.replace('/home/challenges');
-      return;
-    }
+    if (!challengeId) { router.replace('/home/challenges'); return; }
     processPayout(challengeId).catch(() => {});
-    getChallengeById(challengeId)
-      .then(c => setChallenge(c))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    getChallengeById(challengeId).then(c => setChallenge(c)).catch(() => {}).finally(() => setLoading(false));
   }, [challengeId, router]);
 
   if (loading) {
-    return <div style={{ textAlign: 'center', padding: '60px 0' }}><span style={{ color: '#39FF7A' }}>Loading…</span></div>;
+    return <div style={{ textAlign: 'center', padding: '70px 0' }}><Spinner /></div>;
   }
 
   const creatorFee = challenge ? (challenge.pot * challenge.creator_fee_percent) / 100 : 0;
@@ -33,48 +33,45 @@ function PayoutContent() {
 
   return (
     <>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-        <button onClick={() => router.back()} style={{ color: '#555', fontSize: 20, lineHeight: 1, background: 'none', border: 'none', cursor: 'pointer' }}>←</button>
-        <h1 style={{ fontSize: 20, fontWeight: 800, color: '#EFEFEF' }}>Payout</h1>
+      <div className="page-head">
+        <button onClick={() => router.back()} className="icon-btn"><ArrowLeft size={18} /></button>
+        <h1 className="page-title">Payout</h1>
       </div>
 
-      <div className="card" style={{ textAlign: 'center', padding: '28px 16px', marginBottom: 16 }}>
-        <div style={{ width: 64, height: 64, borderRadius: 32, border: '2px solid #39FF7A', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-          <span style={{ fontSize: 28 }}>🏆</span>
+      <div className="card" style={{ textAlign: 'center', padding: '32px 16px', marginBottom: 16 }}>
+        <div className="avatar avatar-accent" style={{ width: 68, height: 68, margin: '0 auto 16px' }}>
+          <Trophy size={28} />
         </div>
-        <p style={{ fontSize: 9, color: '#555', letterSpacing: 1.5, marginBottom: 6 }}>CHALLENGE COMPLETE</p>
-        <p style={{ fontSize: 26, fontWeight: 800, color: '#39FF7A', marginBottom: 6 }}>You won!</p>
-        {challenge && (
-          <p style={{ fontSize: 13, color: '#D0D0D0', lineHeight: '18px' }}>{challenge.goal}</p>
-        )}
+        <p className="section-tag" style={{ marginBottom: 8 }}>Challenge complete</p>
+        <p style={{ fontSize: 26, fontWeight: 800, color: 'var(--accent)', marginBottom: 8 }} className="glow-text">You won!</p>
+        {challenge && <p style={{ fontSize: 14, color: 'var(--text-2)', lineHeight: 1.4 }}>{challenge.goal}</p>}
       </div>
 
       {challenge && (
-        <div className="card" style={{ marginBottom: 14 }}>
-          <p style={{ fontSize: 9, color: '#555', letterSpacing: 1.5, marginBottom: 10 }}>BREAKDOWN</p>
+        <div className="card" style={{ marginBottom: 16 }}>
+          <p className="section-tag">Breakdown</p>
           {[
             ['Total pot', `$${challenge.pot.toFixed(2)}`],
             ...(creatorFee > 0 ? [['Creator fee (' + challenge.creator_fee_percent + '%)', `−$${creatorFee.toFixed(2)}`]] : []),
             ['Net pot', `$${netPot.toFixed(2)}`],
           ].map(([label, value], i, arr) => (
-            <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: i < arr.length - 1 ? '1px solid #1E1E1E' : 'none' }}>
-              <span style={{ fontSize: 12, color: '#555' }}>{label}</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: i === arr.length - 1 ? '#39FF7A' : '#D0D0D0' }}>{value}</span>
+            <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: i < arr.length - 1 ? '1px solid var(--hairline)' : 'none' }}>
+              <span style={{ fontSize: 13, color: 'var(--text-3)' }}>{label}</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: i === arr.length - 1 ? 'var(--accent)' : 'var(--text-2)' }}>{value}</span>
             </div>
           ))}
         </div>
       )}
 
-      <Link href="/home/wallet" className="btn-primary" style={{ display: 'block', textAlign: 'center', marginBottom: 8 }}>
-        Withdraw to bank →
-      </Link>
+      <div style={{ marginBottom: 10 }}>
+        <Btn onClick={() => router.push('/home/wallet')}>Withdraw to bank <ArrowRight size={18} /></Btn>
+      </div>
+      <div style={{ marginBottom: 16 }}>
+        <Btn variant="surface" onClick={() => router.push('/home/wallet')}>Keep in wallet</Btn>
+      </div>
 
-      <Link href="/home/wallet" className="btn-ghost" style={{ display: 'block', textAlign: 'center', marginBottom: 16 }}>
-        Keep in wallet
-      </Link>
-
-      <Link href="/home/challenges" style={{ display: 'block', textAlign: 'center', fontSize: 12, color: '#555' }}>
-        Start a new challenge →
+      <Link href="/home/challenges" style={{ display: 'block', textAlign: 'center', fontSize: 13, color: 'var(--text-3)', fontWeight: 600 }}>
+        Start a new challenge
       </Link>
     </>
   );
@@ -82,8 +79,8 @@ function PayoutContent() {
 
 export default function PayoutPage() {
   return (
-    <div style={{ padding: '12px 16px 16px' }}>
-      <Suspense fallback={<div style={{ textAlign: 'center', padding: '60px 0' }}><span style={{ color: '#39FF7A' }}>Loading…</span></div>}>
+    <div style={{ padding: '20px 22px 16px' }}>
+      <Suspense fallback={<div style={{ textAlign: 'center', padding: '70px 0' }}><Spinner /></div>}>
         <PayoutContent />
       </Suspense>
     </div>
