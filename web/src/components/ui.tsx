@@ -4,7 +4,7 @@ import type { CSSProperties, ReactNode } from 'react';
 
 /* ---------- Skeleton primitives (shimmer placeholders) ---------- */
 export function Skeleton({ w, h = 12, r = 8, style }: { w?: number | string; h?: number | string; r?: number; style?: CSSProperties }) {
-  return <span className="skeleton" style={{ display: 'block', width: w ?? '100%', height: h, borderRadius: r, ...style }} />;
+  return <span className="skel" style={{ display: 'block', width: w ?? '100%', height: h, borderRadius: r, ...style }} />;
 }
 
 /** Placeholder that mirrors the challenge card layout used across the app. */
@@ -33,7 +33,7 @@ export function SkeletonList({ count = 3 }: { count?: number }) {
 }
 
 /* ---------- Unified empty state ---------- */
-export function EmptyState({ icon, title, hint, action }: { icon?: ReactNode; title: string; hint?: string; action?: ReactNode }) {
+export function EmptyState({ icon, title, subtitle, action }: { icon?: ReactNode; title: string; subtitle?: string; action?: ReactNode }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -48,7 +48,7 @@ export function EmptyState({ icon, title, hint, action }: { icon?: ReactNode; ti
         </div>
       )}
       <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>{title}</p>
-      {hint && <p style={{ fontSize: 13, color: 'var(--text-3)', lineHeight: 1.5, maxWidth: 260 }}>{hint}</p>}
+      {subtitle && <p style={{ fontSize: 13, color: 'var(--text-3)', lineHeight: 1.5, maxWidth: 260 }}>{subtitle}</p>}
       {action && <div style={{ marginTop: 6 }}>{action}</div>}
     </motion.div>
   );

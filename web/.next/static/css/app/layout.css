@@ -686,21 +686,20 @@ video {
     min-height: 100dvh;
     position: relative;
   }
-/* Ambient backdrop — an anchored accent wash at the top edge plus a faint
-     dot-grid texture, both faded out toward the middle of the screen. No
-     floating orbs / perfect circles. */
+/* Ambient aurora background blob */
 .aurora {
     position: fixed;
-    inset: 0;
+    top: -25%;
+    left: 50%;
+    width: 520px;
+    height: 520px;
+    margin-left: -260px;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, var(--accent-glow), transparent 65%);
+    filter: blur(40px);
     pointer-events: none;
     z-index: 0;
-    background-image:
-      radial-gradient(135% 55% at 50% -8%, var(--accent-glow), transparent 58%),
-      radial-gradient(var(--hairline) 1px, transparent 1.4px);
-    background-size: 100% 100%, 22px 22px;
-    background-position: top center, top center;
-    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 32%, transparent 72%);
-    mask-image: linear-gradient(to bottom, #000 0%, #000 32%, transparent 72%);
+    animation: auroraDrift 14s ease-in-out infinite;
   }
 /* Cards */
 .surface {
@@ -739,7 +738,7 @@ video {
 .btn:active { transform: scale(0.975); }
 .btn-accent {
     background: var(--accent);
-    color: var(--accent-fg);
+    color: #04140a;
     box-shadow: 0 8px 30px -8px var(--accent-glow);
   }
 .btn-accent:disabled { opacity: 0.4; box-shadow: none; cursor: not-allowed; }
@@ -918,7 +917,6 @@ a.card:hover { border-color: var(--hairline-strong); }
     padding-bottom: 8px;
     background: var(--nav-bg);
     backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
     border-top: 1px solid var(--hairline);
     z-index: 50;
   }
@@ -934,6 +932,43 @@ a.card:hover { border-color: var(--hairline-strong); }
   }
 .nav-item-active { color: var(--accent); }
 .nav-item .nav-lbl { font-size: 10px; font-weight: 600; }
+/* Skeleton loaders */
+.skel {
+    position: relative;
+    overflow: hidden;
+    background: var(--skeleton);
+    border-radius: 8px;
+  }
+.skel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, var(--skeleton-sheen), transparent);
+    animation: shimmer 1.4s infinite;
+  }
+/* Empty state */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+    padding: 34px 24px;
+  }
+.empty-state .empty-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-soft);
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+.empty-state .empty-title { font-size: 15px; font-weight: 800; color: var(--text); }
+.empty-state .empty-sub { font-size: 13px; color: var(--text-3); line-height: 1.5; max-width: 240px; }
 .fixed {
   position: fixed;
 }
@@ -1013,16 +1048,12 @@ a.card:hover { border-color: var(--hairline-strong); }
   --bg-elev: #0d100f;
   --surface: #121615;
   --surface-2: #181d1b;
-  --nav-bg: rgba(8, 11, 10, 0.82);
-  --skeleton: rgba(255, 255, 255, 0.06);
-  --skeleton-sheen: rgba(255, 255, 255, 0.11);
   --hairline: rgba(255, 255, 255, 0.07);
   --hairline-strong: rgba(255, 255, 255, 0.12);
 
   /* Brand */
   --accent: #2be873;
   --accent-press: #22c462;
-  --accent-fg: #04140a;
   --accent-soft: rgba(43, 232, 115, 0.12);
   --accent-glow: rgba(43, 232, 115, 0.35);
 
@@ -1036,33 +1067,29 @@ a.card:hover { border-color: var(--hairline-strong); }
   --danger: #ff6b6b;
   --amber: #f5b14c;
 
+  /* Chrome */
+  --nav-bg: rgba(8, 11, 10, 0.85);
+  --skeleton: rgba(255, 255, 255, 0.05);
+  --skeleton-sheen: rgba(255, 255, 255, 0.09);
+
   --radius: 18px;
 }
 
 /* ---------- Motion ---------- */
 @keyframes spin { to { transform: rotate(360deg); } }
-@keyframes shimmer { 100% { transform: translateX(100%); } }
 
-.skeleton {
-  position: relative;
-  overflow: hidden;
-  background: var(--skeleton);
-  border-radius: 8px;
-}
-.skeleton::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent, var(--skeleton-sheen), transparent);
-  animation: shimmer 1.3s infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .skeleton::after { animation: none; }
+@keyframes auroraDrift {
+  0%   { transform: translate(-10%, -8%) scale(1); opacity: 0.55; }
+  50%  { transform: translate(8%, 6%) scale(1.15); opacity: 0.8; }
+  100% { transform: translate(-10%, -8%) scale(1); opacity: 0.55; }
 }
 
 @keyframes pulseGlow {
   0%, 100% { opacity: 0.6; }
   50%      { opacity: 1; }
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
 }
 

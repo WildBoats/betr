@@ -12,8 +12,15 @@ const tabs = [
   { href: '/home/profile', label: 'Profile', Icon: UserCircle },
 ];
 
+// Tab bar only shows on the five top-level tab roots — pushed
+// sub-pages (create, detail, invite, add-friend, history, payout)
+// have their own back button, so the tab bar is hidden to avoid
+// double navigation.
+const ROOTS = tabs.map(t => t.href);
+
 export default function Nav() {
   const pathname = usePathname();
+  if (!ROOTS.includes(pathname)) return null;
   return (
     <nav className="nav-bar">
       {tabs.map(({ href, label, Icon }) => {

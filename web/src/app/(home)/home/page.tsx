@@ -1,9 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Lock, Globe, Plus, ArrowRight } from 'lucide-react';
+import { Lock, Globe, Plus, ArrowRight, Trophy } from 'lucide-react';
 import Logo from '@/components/Logo';
-import { Stagger, Item } from '@/components/ui';
+import { Stagger, Item, SkeletonList, EmptyState } from '@/components/ui';
 import { Challenge, Profile, daysLeft, effectiveStatus, getMyActiveChallenges, getMyProfile } from '@/lib/api';
 
 function StatusPill({ status }: { status: string }) {
@@ -48,15 +48,21 @@ export default function HomePage() {
       <span className="section-tag">Your active challenges</span>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '50px 0' }}>
-          <span style={{ display: 'inline-block', width: 22, height: 22, border: '2px solid var(--accent)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+        <div style={{ marginBottom: 14 }}>
+          <SkeletonList count={2} />
         </div>
       ) : challenges.length === 0 ? (
-        <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: 28, marginBottom: 14 }}>
-          <p style={{ color: 'var(--text-3)', fontSize: 14 }}>No active challenges yet.</p>
-          <Link href="/home/challenges" style={{ color: 'var(--accent)', fontSize: 14, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-            Browse challenges <ArrowRight size={15} />
-          </Link>
+        <div style={{ marginBottom: 14 }}>
+          <EmptyState
+            icon={<Trophy size={24} />}
+            title="No active challenges"
+            subtitle="Join a public challenge or start your own to begin staking on your goals."
+            action={
+              <Link href="/home/challenges" style={{ color: 'var(--accent)', fontSize: 14, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                Browse challenges <ArrowRight size={15} />
+              </Link>
+            }
+          />
         </div>
       ) : (
         <Stagger style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>

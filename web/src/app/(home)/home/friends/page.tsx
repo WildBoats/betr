@@ -1,8 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { UserPlus, ArrowRight } from 'lucide-react';
-import { Stagger, Item } from '@/components/ui';
+import { UserPlus, ArrowRight, Users } from 'lucide-react';
+import { Stagger, Item, Skeleton, EmptyState } from '@/components/ui';
 import { Profile, getMyFriends, getPendingRequests, respondToFriendRequest } from '@/lib/api';
 
 type PendingRow = { id: string; profiles: Profile };
@@ -35,8 +35,16 @@ export default function FriendsPage() {
       </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '50px 0' }}>
-          <span style={{ display: 'inline-block', width: 22, height: 22, border: '2px solid var(--accent)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {[0, 1, 2, 3].map(i => (
+            <div key={i} className="card" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px' }}>
+              <Skeleton w={36} h={36} r={18} />
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <Skeleton w="50%" h={12} />
+                <Skeleton w="32%" h={10} />
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         <>
@@ -64,12 +72,16 @@ export default function FriendsPage() {
           <span className="section-tag">All friends ({friends.length})</span>
 
           {friends.length === 0 ? (
-            <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: 28 }}>
-              <p style={{ color: 'var(--text-3)', fontSize: 14 }}>No friends yet.</p>
-              <Link href="/home/friends/add" style={{ color: 'var(--accent)', fontSize: 14, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                Find people <ArrowRight size={15} />
-              </Link>
-            </div>
+            <EmptyState
+              icon={<Users size={24} />}
+              title="No friends yet"
+              subtitle="Add friends to challenge them directly and see who's on a winning streak."
+              action={
+                <Link href="/home/friends/add" style={{ color: 'var(--accent)', fontSize: 14, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                  Find people <ArrowRight size={15} />
+                </Link>
+              }
+            />
           ) : (
             <Stagger style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {friends.map((f, i) => (

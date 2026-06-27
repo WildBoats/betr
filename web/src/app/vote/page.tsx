@@ -1,8 +1,8 @@
 'use client';
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Check, X } from 'lucide-react';
-import { Btn, Banner } from '@/components/ui';
+import { ArrowLeft, ArrowRight, Check, X, Inbox } from 'lucide-react';
+import { Btn, Banner, EmptyState } from '@/components/ui';
 import { Challenge, Participant, Profile, getChallengeById, getChallengeParticipants, getMyProfile, getMyVotes, submitVotes } from '@/lib/api';
 
 function Spinner() {
@@ -58,6 +58,27 @@ function VoteContent() {
 
   if (loading) {
     return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}><Spinner /></div>;
+  }
+
+  if (others.length === 0) {
+    return (
+      <>
+        <div className="page-head">
+          <button onClick={() => router.back()} className="icon-btn"><ArrowLeft size={18} /></button>
+          <h1 className="page-title">Cast votes</h1>
+        </div>
+        <EmptyState
+          icon={<Inbox size={24} />}
+          title="Nothing to review"
+          subtitle="There are no participants to vote on for this challenge right now. Check back when voting opens."
+          action={
+            <button onClick={() => router.replace('/home/challenges')} style={{ color: 'var(--accent)', fontSize: 14, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              Back to challenges <ArrowRight size={15} />
+            </button>
+          }
+        />
+      </>
+    );
   }
 
   return (

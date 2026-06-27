@@ -1,8 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Plus, Search, Lock, Globe, ArrowRight } from 'lucide-react';
-import { Stagger, Item } from '@/components/ui';
+import { Plus, Search, Lock, Globe, ArrowRight, Compass, SearchX } from 'lucide-react';
+import { Stagger, Item, SkeletonList, EmptyState } from '@/components/ui';
 import { Challenge, daysLeft, effectiveStatus, getMyActiveChallenges, getPublicFeed, startsIn } from '@/lib/api';
 
 function StatusPill({ status }: { status: string }) {
@@ -45,9 +45,7 @@ export default function ChallengesPage() {
      </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '50px 0' }}>
-          <span style={{ display: 'inline-block', width: 22, height: 22, border: '2px solid var(--accent)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
-        </div>
+        <SkeletonList count={3} />
       ) : (
         <>
           {mine.length > 0 && (
@@ -80,9 +78,24 @@ export default function ChallengesPage() {
           <span className="section-tag">Public feed</span>
 
           {filtered.length === 0 ? (
-            <p style={{ color: 'var(--text-3)', fontSize: 14, textAlign: 'center', padding: '28px 0' }}>
-              {search ? 'No challenges match your search.' : 'No public challenges yet.'}
-            </p>
+            search ? (
+              <EmptyState
+                icon={<SearchX size={24} />}
+                title="No matches"
+                subtitle={`Nothing matches "${search}". Try a different search.`}
+              />
+            ) : (
+              <EmptyState
+                icon={<Compass size={24} />}
+                title="No public challenges yet"
+                subtitle="Be the first to start one — create a public challenge and others can join the pot."
+                action={
+                  <Link href="/home/challenges/create" style={{ color: 'var(--accent)', fontSize: 14, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    Create a challenge <ArrowRight size={15} />
+                  </Link>
+                }
+              />
+            )
           ) : (
             <Stagger style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {filtered.map(c => {

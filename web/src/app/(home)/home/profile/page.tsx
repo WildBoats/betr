@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Wallet as WalletIcon, History, ChevronRight, LogOut, Settings as SettingsIcon } from 'lucide-react';
+import { Wallet as WalletIcon, History, ChevronRight, LogOut } from 'lucide-react';
+import { Skeleton } from '@/components/ui';
 import { Profile, ProfileStats, getMyProfile, getProfileStats } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
 
@@ -28,8 +29,16 @@ export default function ProfilePage() {
       <h1 className="page-title" style={{ marginBottom: 18 }}>Profile</h1>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '50px 0' }}>
-          <span style={{ display: 'inline-block', width: 22, height: 22, border: '2px solid var(--accent)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '28px 16px' }}>
+            <Skeleton w={72} h={72} r={36} />
+            <Skeleton w={120} h={16} />
+            <Skeleton w={80} h={12} />
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            {[0, 1, 2, 3].map(i => <Skeleton key={i} h={60} r={12} />)}
+          </div>
+          <Skeleton h={96} r={18} />
         </div>
       ) : (
         <>
@@ -59,12 +68,8 @@ export default function ProfilePage() {
               <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-2)', display: 'inline-flex', alignItems: 'center', gap: 10 }}><WalletIcon size={17} color="var(--text-3)" /> Wallet</span>
               <ChevronRight size={17} color="var(--text-3)" />
             </Link>
-            <Link href="/home/profile/history" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: '1px solid var(--hairline)' }}>
+            <Link href="/home/profile/history" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0' }}>
               <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-2)', display: 'inline-flex', alignItems: 'center', gap: 10 }}><History size={17} color="var(--text-3)" /> Challenge history</span>
-              <ChevronRight size={17} color="var(--text-3)" />
-            </Link>
-            <Link href="/home/profile/settings" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0' }}>
-              <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-2)', display: 'inline-flex', alignItems: 'center', gap: 10 }}><SettingsIcon size={17} color="var(--text-3)" /> Appearance &amp; settings</span>
               <ChevronRight size={17} color="var(--text-3)" />
             </Link>
           </div>

@@ -1,20 +1,17 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Btn, Banner } from '@/components/ui';
 import { Wallet, Transaction, getMyWallet, getMyTransactions, depositFunds, requestWithdrawal } from '@/lib/api';
 
 const CHIPS = [25, 50, 100, 250];
 
 export default function WalletPage() {
-  const router = useRouter();
   const [wallet, setWallet] = useState<Wallet>({ balance: 0, locked_balance: 0 });
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [depositAmount, setDepositAmount] = useState(50);
-  const [customDeposit, setCustomDeposit] = useState('');
+  const [depositInput, setDepositInput] = useState('50');
   const [depositing, setDepositing] = useState(false);
   const [withdrawing, setWithdrawing] = useState(false);
   const [msg, setMsg] = useState('');
@@ -27,8 +24,8 @@ export default function WalletPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const customNum = Number(customDeposit);
-  const effectiveAmount = customDeposit && isFinite(customNum) ? customNum : depositAmount;
+  const parsed = Number(depositInput);
+  const effectiveAmount = isFinite(parsed) ? parsed : 0;
 
   const handleDeposit = async () => {
     if (!(effectiveAmount >= 5)) { setMsg('Minimum deposit is $5'); setMsgOk(false); return; }
@@ -60,7 +57,6 @@ export default function WalletPage() {
   return (
     <div style={{ padding: '20px 22px 16px' }}>
       <div className="page-head">
-        <button onClick={() => router.back()} className="icon-btn"><ArrowLeft size={18} /></button>
         <h1 className="page-title">Wallet</h1>
       </div>
 
@@ -78,7 +74,7 @@ export default function WalletPage() {
       <div className="card" style={{ marginBottom: 16 }}>
         <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
           {CHIPS.map(c => (
-            <button key={c} onClick={() => { setDepositAmount(c); setCustomDeposit(''); }} className={depositAmount === c && !customDeposit ? 'chip chip-active' : 'chip'} style={{ flex: 1, justifyContent: 'center', padding: '10px' }}>${c}</button>
+            <button key={c} onClick={() => setDepositInput(String(c))} className={effectiveAmount === c ? 'chip chip-active' : 'chip'} style={{ flex: 1, justifyContent: 'center', padding: '10px' }}>${c}</button>
           ))}
         </div>
 
@@ -87,11 +83,11 @@ export default function WalletPage() {
           <input
             style={{ flex: 1, background: 'transparent', padding: '12px 8px', fontSize: 22, fontWeight: 800, color: 'var(--accent)', width: '100%' }}
             placeholder="0.00"
-            value={customDeposit}
+            value={depositInput}
             onChange={e => {
               const v = e.target.value.replace(/[^0-9.]/g, '');
               const d = v.indexOf('.');
-              setCustomDeposit(d === -1 ? v : v.slice(0, d + 1) + v.slice(d + 1).replace(/\./g, ''));
+              setDepositInput(d === -1 ? v : v.slice(0, d + 1) + v.slice(d + 1).replace(/\./g, ''));
             }}
             inputMode="decimal"
             type="text"
