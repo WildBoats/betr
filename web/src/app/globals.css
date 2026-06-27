@@ -384,6 +384,23 @@
   .empty-state .empty-sub { font-size: 13px; color: var(--text-3); line-height: 1.5; max-width: 240px; }
 }
 
+/* ---------- Desktop: present the mobile column as a framed device ---------- */
+@media (min-width: 600px) {
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(ellipse 70% 50% at 50% -10%, var(--accent-glow), transparent 70%);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .app-frame {
+    border-inline: 1px solid var(--hairline);
+    box-shadow: 0 0 100px rgba(0, 0, 0, 0.45);
+  }
+}
+
 @layer utilities {
   .text-balance { text-wrap: balance; }
   .glow-text { text-shadow: 0 0 28px var(--accent-glow); }

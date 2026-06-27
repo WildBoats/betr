@@ -9,7 +9,8 @@ Deno.serve(async (req) => {
 
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(body, sig, Deno.env.get('STRIPE_WEBHOOK_SECRET') ?? '');
+    // Async variant is required in the Deno/edge runtime (uses SubtleCrypto).
+    event = await stripe.webhooks.constructEventAsync(body, sig, Deno.env.get('STRIPE_WEBHOOK_SECRET') ?? '');
   } catch {
     return new Response('Invalid signature', { status: 400 });
   }
@@ -19,36 +20,49 @@ Deno.serve(async (req) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
   );
 
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.Checkout.Session;
-    const userId = session.metadata?.user_id;
-    const amountCents = Number(session.metadata?.amount_cents ?? 0);
+  try {
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object as Stripe.Checkout.Session;
 
-    if (userId && amountCents > 0) {
-      const dollars = amountCents / 100;
-      const description = `Wallet deposit - ${session.id}`;
-
-      // Idempotency: skip if this session was already processed
-      const { data: existing } = await supabase
-        .from('transactions')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('description', description)
-        .maybeSingle();
-
-      if (!existing) {
-        await supabase.rpc('increment_wallet', { user_id: userId, amount: dollars });
-        await supabase.from('transactions').insert({
-          user_id: userId,
-          type: 'deposit',
-          amount: dollars,
-          description,
+      // Only credit fully-paid sessions. (Guards async payment methods that can fire
+      // this event while still unpaid; card sessions are always 'paid' here.)
+      if (session.payment_status !== 'paid') {
+        return new Response(JSON.stringify({ received: true, skipped: 'unpaid' }), {
+          headers: { 'Content-Type': 'application/json' },
         });
       }
-    }
-  }
 
-  return new Response(JSON.stringify({ received: true }), {
-    headers: { 'Content-Type': 'application/json' },
-  });
+      const userId = session.metadata?.user_id;
+      // Trust the verified event's amount_total over client-influenced metadata.
+      const amountCents = session.amount_total ?? Number(session.metadata?.amount_cents ?? 0);
+
+      if (userId && amountCents > 0) {
+        // Atomic + idempotent: credit_deposit inserts a transaction keyed on the unique
+        // stripe_session_id (ON CONFLICT DO NOTHING) and only increments the wallet when
+        // the insert actually created a row — so duplicate/concurrent deliveries are safe.
+        const { error } = await supabase.rpc('credit_deposit', {
+          p_user_id: userId,
+          p_amount: amountCents / 100,
+          p_session_id: session.id,
+        });
+        if (error) {
+          // Surface the failure so Stripe retries. Idempotency makes the retry safe.
+          console.error('credit_deposit failed:', error.message);
+          return new Response(JSON.stringify({ error: error.message }), {
+            status: 500, headers: { 'Content-Type': 'application/json' },
+          });
+        }
+      }
+    }
+
+    return new Response(JSON.stringify({ received: true }), {
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    console.error('webhook handler error:', message);
+    return new Response(JSON.stringify({ error: message }), {
+      status: 500, headers: { 'Content-Type': 'application/json' },
+    });
+  }
 });

@@ -61,9 +61,9 @@ export default function InterestsStep() {
     signUpStore.password = '';
 
     if (error) {
-      // Demo-friendly fallback: still let the user into the app if Supabase isn't wired up.
       setLoading(false);
-      router.replace('/home');
+      setMsg(error.message || 'Could not create your account. Please try again.');
+      setOk(false);
       return;
     }
 

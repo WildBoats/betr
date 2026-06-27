@@ -14,6 +14,7 @@ export default function Landing() {
   const [moreOpen, setMoreOpen] = useState(false);
   const [codeOpen, setCodeOpen] = useState(false);
   const [code, setCode] = useState('');
+  const [oauthErr, setOauthErr] = useState('');
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -27,6 +28,18 @@ export default function Landing() {
     signUpStore.email = '';
     signUpStore.emailVerified = false;
     router.push('/sign-up/email');
+  };
+
+  const oauth = async (provider: 'google' | 'apple' | 'facebook') => {
+    setOauthErr('');
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    });
+    if (error) {
+      const name = provider.charAt(0).toUpperCase() + provider.slice(1);
+      setOauthErr(`${name} sign-in isn't set up yet — try email instead.`);
+    }
   };
 
   return (
@@ -105,7 +118,7 @@ export default function Landing() {
               style={{ display: 'flex', flexDirection: 'column', gap: 12 }}
             >
               <Reveal>
-                <ProviderButton onClick={() => router.push('/home')} icon={<GoogleIcon />} label="Continue with Google" />
+                <ProviderButton onClick={() => oauth('google')} icon={<GoogleIcon />} label="Continue with Google" />
               </Reveal>
               <Reveal>
                 <motion.button whileTap={{ scale: 0.97 }} onClick={goEmail} className="btn btn-accent">
@@ -122,8 +135,8 @@ export default function Landing() {
                     style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: 12 }}
                   >
                     <div style={{ height: 12 }} />
-                    <ProviderButton onClick={() => router.push('/home')} icon={<AppleIcon />} label="Continue with Apple" />
-                    <ProviderButton onClick={() => router.push('/home')} icon={<FacebookIcon />} label="Continue with Facebook" />
+                    <ProviderButton onClick={() => oauth('apple')} icon={<AppleIcon />} label="Continue with Apple" />
+                    <ProviderButton onClick={() => oauth('facebook')} icon={<FacebookIcon />} label="Continue with Facebook" />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -137,6 +150,10 @@ export default function Landing() {
                   <motion.span animate={{ rotate: moreOpen ? 45 : 0 }} style={{ display: 'inline-flex' }}><Plus size={14} /></motion.span>
                 </button>
               </Reveal>
+
+              {oauthErr && (
+                <p style={{ fontSize: 12, color: 'var(--danger)', textAlign: 'center', marginTop: 2 }}>{oauthErr}</p>
+              )}
 
               <Reveal>
                 <p style={{ fontSize: 13, color: 'var(--text-3)', textAlign: 'center', marginTop: 4 }}>

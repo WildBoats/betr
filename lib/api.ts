@@ -261,44 +261,23 @@ export async function createChallenge(params: {
   requiredCount?: number | null;
   allowedMisses?: number;
 }): Promise<string> {
-  const id = await uid();
-  if (!id) throw new Error('Not signed in');
-
-  const endsAt = new Date(params.startsAt.getTime() + params.durationDays * 86400000);
-
-  const { data, error } = await supabase
-    .from('challenges')
-    .insert({
-      creator_id: id,
-      goal: params.goal,
-      type: params.type,
-      bet_amount: params.betAmount,
-      duration_days: params.durationDays,
-      starts_at: params.startsAt.toISOString(),
-      ends_at: endsAt.toISOString(),
-      creator_fee_percent: params.type === 'public' ? params.creatorFeePercent : 0,
-      creator_participates: params.creatorParticipates,
-      cadence: params.cadence ?? 'daily',
-      target_reps: params.targetReps ?? null,
-      required_count: params.requiredCount ?? null,
-      allowed_misses: params.allowedMisses ?? 0,
-    })
-    .select('id')
-    .single();
-
-  if (error || !data) throw new Error(error?.message ?? 'Could not create challenge');
-
-  // If creator participates, join immediately — rollback on failure
-  if (params.creatorParticipates) {
-    try {
-      await joinChallenge(data.id);
-    } catch (joinErr) {
-      await supabase.from('challenges').delete().eq('id', data.id);
-      throw joinErr;
-    }
-  }
-
-  return data.id;
+  // Atomic: validates inputs, creates the challenge, and (if participating) locks
+  // the creator's stake — all server-side. Clients can no longer write challenges directly.
+  const { data, error } = await supabase.rpc('create_challenge', {
+    p_goal: params.goal,
+    p_type: params.type,
+    p_bet_amount: params.betAmount,
+    p_duration_days: params.durationDays,
+    p_starts_at: params.startsAt.toISOString(),
+    p_creator_fee_percent: params.creatorFeePercent,
+    p_creator_participates: params.creatorParticipates,
+    p_cadence: params.cadence ?? 'daily',
+    p_target_reps: params.targetReps ?? null,
+    p_required_count: params.requiredCount ?? null,
+    p_allowed_misses: params.allowedMisses ?? 0,
+  });
+  if (error) throw new Error(error.message);
+  return data as string;
 }
 
 // ─── Voting ───────────────────────────────────────────────────────────────────

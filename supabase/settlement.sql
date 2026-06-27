@@ -19,17 +19,27 @@
 CREATE OR REPLACE FUNCTION settle_challenge(p_challenge_id UUID, p_force BOOLEAN DEFAULT FALSE)
 RETURNS JSON LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 DECLARE
-  v_status TEXT; v_bet NUMERIC; v_fee INT; v_creator UUID; v_goal TEXT;
+  v_status TEXT; v_bet NUMERIC; v_fee INT; v_creator UUID; v_goal TEXT; v_ends_at timestamptz;
   v_undecided INT; v_winners INT := 0; v_losers INT := 0;
   v_forfeit NUMERIC := 0; v_creator_fee NUMERIC := 0; v_distributable NUMERIC := 0; v_per NUMERIC := 0;
   v_creator_won BOOLEAN; r RECORD;
 BEGIN
-  SELECT status, bet_amount, creator_fee_percent, creator_id, goal
-    INTO v_status, v_bet, v_fee, v_creator, v_goal
-  FROM challenges WHERE id = p_challenge_id;
+  -- FOR UPDATE: serialize concurrent settle attempts (creator + cron) so winners
+  -- cannot be paid twice.
+  SELECT status, bet_amount, creator_fee_percent, creator_id, goal, ends_at
+    INTO v_status, v_bet, v_fee, v_creator, v_goal, v_ends_at
+  FROM challenges WHERE id = p_challenge_id FOR UPDATE;
 
   IF v_status IS NULL THEN RAISE EXCEPTION 'Challenge not found.'; END IF;
   IF v_status = 'completed' THEN RETURN json_build_object('status','already_completed'); END IF;
+
+  -- Lifecycle gate: a creator-triggered settle must wait until the challenge has
+  -- actually ended; only the service-role cron (p_force) may settle earlier.
+  IF NOT p_force
+     AND NOT (v_status = 'voting'
+              OR (v_status = 'live' AND v_ends_at IS NOT NULL AND v_ends_at <= NOW())) THEN
+    RAISE EXCEPTION 'Challenge has not ended yet — cannot settle.';
+  END IF;
 
   -- Don't settle while proof is still being verified — failing a player because a
   -- reviewer was slow is unfair. The lifecycle cron calls with p_force=TRUE only

@@ -948,27 +948,6 @@ a.card:hover { border-color: var(--hairline-strong); }
     animation: shimmer 1.4s infinite;
   }
 /* Empty state */
-.empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 6px;
-    padding: 34px 24px;
-  }
-.empty-state .empty-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--accent-soft);
-    color: var(--accent);
-    margin-bottom: 6px;
-  }
-.empty-state .empty-title { font-size: 15px; font-weight: 800; color: var(--text); }
-.empty-state .empty-sub { font-size: 13px; color: var(--text-3); line-height: 1.5; max-width: 240px; }
 .fixed {
   position: fixed;
 }
@@ -1091,5 +1070,22 @@ a.card:hover { border-color: var(--hairline-strong); }
 
 @keyframes shimmer {
   100% { transform: translateX(100%); }
+}
+
+/* ---------- Desktop: present the mobile column as a framed device ---------- */
+@media (min-width: 600px) {
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(ellipse 70% 50% at 50% -10%, var(--accent-glow), transparent 70%);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .app-frame {
+    border-inline: 1px solid var(--hairline);
+    box-shadow: 0 0 100px rgba(0, 0, 0, 0.45);
+  }
 }
 
